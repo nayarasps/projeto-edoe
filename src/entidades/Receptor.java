@@ -2,6 +2,7 @@ package entidades;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class Receptor extends Usuario {
@@ -13,16 +14,17 @@ public class Receptor extends Usuario {
 		this.status = "receptor";
 	}
 	
-	public String listarItens() {
-		List<Item> itensLista = new ArrayList<Item>(itens.values());
-		Collections.sort(itensLista, Item.comparaIdItem);
-		String saida = "";
-		
-		for (int i = 0; i < itensLista.size(); i++) {
-			saida += itensLista.get(i).toString();
-			saida += ", Receptor: " + nome + "/" + id;
-			saida += " | ";
+	public HashMap<Integer, String> listarItens() {
+
+		HashMap<Integer, String> itensReceptor = new HashMap<>();
+
+		for (Item item : itens.values()) {
+
+			String saida = item.toString() +
+					", Receptor: " + nome + "/" + id +
+					" | ";
+			itensReceptor.put(item.getId(), saida);
 		}
-		return saida;
+		return itensReceptor;
 	}
 }

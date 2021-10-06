@@ -13,7 +13,9 @@ import util.StringFormat;
  * A pontuacao total do Match do item tambem e armazenada no proprio item;
  *
  */
+//TODO REMOVER USER DE ITEM DEPOIS DA REFATORAÇÃO
 public class Item implements Serializable{
+
 	private static final long serialVersionUID = 1808448751837784362L;
 	private String descricao;
 	private int id;
@@ -117,7 +119,7 @@ public class Item implements Serializable{
 
 	/**
 	 * Metodo que retorna o Usuario.
-	 * 
+	 *
 	 * @return Usuario.
 	 */
 	public Usuario getUser() {
@@ -126,13 +128,13 @@ public class Item implements Serializable{
 
 	/**
 	 * Metodo que altera o Usuario.
-	 * 
+	 *
 	 * @return void.
 	 */
 	public void setUser(Usuario user) {
 		this.user = user;
 	}
-	
+
 	/**
 	 * Metodo que retorna a pontuacao de match.
 	 * 
@@ -193,18 +195,7 @@ public class Item implements Serializable{
 		     return 0;
 		}
 	};
-	
-	/**
-	 * Metodo estatico que compara os ids dos itens.
-	 * 
-	 * @return int.
-	 */
-	public static Comparator<Item> comparaIdItem = new Comparator<Item>() {
-		public int compare(Item i1, Item i2) {
-			//Menor para o maior
-		   return Integer.compare(i1.getId(), i2.getId());
-		}
-	};
+
 	
 	/**
 	 * Metodo estatico que compara a pontuacao de match dos itens.

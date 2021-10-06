@@ -14,11 +14,11 @@ public class Doacao implements Serializable {
 	private Usuario usuarioReceptor;
 	private int quantidadeDoada;
 	private String data;
-	private String descricaoItem;
+	private final String descricaoItem;
 	
 	/**
 	 * Metodo construtor de Doacao.
-	 * 
+	 *
 	 * @param usuarioDoador que representa o usuario doador do item.
 	 * @param usuarioReceptor que representa o usuario receptor do item.
 	 * @param quantidadeDoada que representa a quantidade doada.

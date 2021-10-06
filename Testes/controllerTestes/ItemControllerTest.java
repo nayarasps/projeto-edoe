@@ -13,21 +13,20 @@ import controller.UsuarioController;
 
 public class ItemControllerTest {
 
-	private Controller controller;
 	private UsuarioController usuarioController;
 	private ItemController itemController;
 	
 	@Before
 	public void inicializaController() {
-		controller = new Controller();
+		Controller controller = new Controller();
 		usuarioController = new UsuarioController();
 		itemController = new ItemController(usuarioController);
 		
 		usuarioController.adicionaDoador("123456", "Relampago Marquinhos", "relampago.marquinho@catchau.com", "2210-1022", "PESSOA_FISICA");
 		usuarioController.adicionaDoador("112233", "Yudi Playsteicho", "yudi.prey@pleystetion.com", "4002-8922", "PESSOA_FISICA");
 		
-		itemController.adicionaItem("123456", "Pelucia", 4, "fofo,coelho");
-		itemController.adicionaItem("112233", "Casaco", 2, "pele,adulto");
+		itemController.adicionaItemDoador("123456", "Pelucia", 4, "fofo,coelho");
+		itemController.adicionaItemDoador("112233", "Casaco", 2, "pele,adulto");
 	}
 
 	/**
@@ -58,12 +57,12 @@ public class ItemControllerTest {
 	 */
 	@Test
 	public void testAdicionaItem() {
-		assertEquals(3, itemController.adicionaItem("123456", "Papelao", 5, "reciclavel"));
-		assertEquals(4, itemController.adicionaItem("112233", "Livro", 3, "classico,estrangeiro"));
-		assertEquals(5, itemController.adicionaItem("112233", "Mochila", 4, ""));
+		assertEquals(3, itemController.adicionaItemDoador("123456", "Papelao", 5, "reciclavel"));
+		assertEquals(4, itemController.adicionaItemDoador("112233", "Livro", 3, "classico,estrangeiro"));
+		assertEquals(5, itemController.adicionaItemDoador("112233", "Mochila", 4, ""));
 		
 		// Item com o mesmo descritor e tags, porem quantidade diferente
-		assertEquals(1, itemController.adicionaItem("123456", "Pelucia", 8, "fofo,coelho"));
+		assertEquals(1, itemController.adicionaItemDoador("123456", "Pelucia", 8, "fofo,coelho"));
 	}
 	
 	/**
@@ -72,16 +71,16 @@ public class ItemControllerTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testValidaAdicionaItem() {
 			// Valida IdDoador vazio ou nulo
-		itemController.adicionaItem(null, "Papelao", 5, "reciclavel");
-		itemController.adicionaItem("", "Papelao", 5, "reciclavel");
+		itemController.adicionaItemDoador(null, "Papelao", 5, "reciclavel");
+		itemController.adicionaItemDoador("", "Papelao", 5, "reciclavel");
 			// Valida descricaoItem vazia ou nula
-		itemController.adicionaItem("123456", null, 5, "reciclavel");
-		itemController.adicionaItem("123456", "", 5, "reciclavel");
+		itemController.adicionaItemDoador("123456", null, 5, "reciclavel");
+		itemController.adicionaItemDoador("123456", "", 5, "reciclavel");
 			// Valida quantidade invalida (quantidade <= 0)
-		itemController.adicionaItem("123456", "Papelao", -1, "reciclavel");
-		itemController.adicionaItem("123456", "Papelao", 0, "reciclavel");
+		itemController.adicionaItemDoador("123456", "Papelao", -1, "reciclavel");
+		itemController.adicionaItemDoador("123456", "Papelao", 0, "reciclavel");
 			// Valida tags nulas
-		itemController.adicionaItem("123456", "Papelao", 5, null);
+		itemController.adicionaItemDoador("123456", "Papelao", 5, null);
 	}
 
 	/**
@@ -92,7 +91,7 @@ public class ItemControllerTest {
 		assertEquals(itemController.exibeItem(1, "123456"), "1 - pelucia, tags: [fofo, coelho], quantidade: 4");
 		assertEquals(itemController.exibeItem(2, "112233"), "2 - casaco, tags: [pele, adulto], quantidade: 2");
 		
-		itemController.adicionaItem("123456", "Geladeira", 1, "");
+		itemController.adicionaItemDoador("123456", "Geladeira", 1, "");
 		assertEquals(itemController.exibeItem(3, "123456"), "3 - geladeira, tags: [], quantidade: 1");
 	}
 
@@ -147,10 +146,10 @@ public class ItemControllerTest {
 	 */
 	@Test
 	public void testRemoveItem() {
-		assertTrue(itemController.encontraItensDoados("123456").containsKey(1));
+		assertTrue(itemController.encontraItensPorIdUsuario("123456").containsKey(1));
 		
 		itemController.removeItem(1, "123456");
-		assertFalse(itemController.encontraItensDoados("123456").containsKey(1));
+		assertFalse(itemController.encontraItensPorIdUsuario("123456").containsKey(1));
 	}
 	
 	/**
@@ -168,7 +167,35 @@ public class ItemControllerTest {
 			// Valida Item nao encontrado
 		itemController.removeItem(2, "123456");
 			// Valida Usuario nao possui itens cadastrados
-		assertTrue(itemController.encontraItensDoados("123456").containsKey(2));
+		assertTrue(itemController.encontraItensPorIdUsuario("123456").containsKey(2));
+	}
+
+	/**
+	 * Testa o metodo ListaDescritorDeItensParaDoacao
+	 */
+	@Test
+	public void testListaDescritorDeItensParaDoacao() {
+		assertEquals(itemController.listaDescritorDeItensParaDoacao(), "2 - casaco | 4 - pelucia");
+
+		itemController.adicionaItemDoador("112233", "CasAco", 8, "infantil,colorido");
+		assertEquals(itemController.listaDescritorDeItensParaDoacao(), "10 - casaco | 4 - pelucia");
+	}
+
+	/**
+	 * Testa o metodo PesquisaItemParaDoacaoPorDescricao
+	 */
+	@Test
+	public void testPesquisaItemParaDoacaoPorDescricao() {
+		itemController.adicionaItemDoador("112233", "CasAco", 8, "infantil,colorido");
+		assertEquals(itemController.pesquisaItemParaDoacaoPorDescricao("cAsaCO"), "2 - casaco, tags: [pele, adulto], quantidade: 2 | 3 - casaco, tags: [infantil, colorido], quantidade: 8");
+	}
+
+	/**
+	 * Testa o caso de erro do metodo PesquisaItemParaDoacaoPorDescricao
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void testValidaPesquisaItemParaDoacaoPorDescricao() {
+		itemController.pesquisaItemParaDoacaoPorDescricao("Colchao");
 	}
 	
 	/**
@@ -177,15 +204,15 @@ public class ItemControllerTest {
 	@Test
 	public void testListaItens() {
 		
-		assertEquals(itemController.listaItens("doador"), "1 - pelucia, tags: [fofo, coelho], quantidade: 4, Doador: Relampago Marquinhos/123456 | 2 - casaco, tags: [pele, adulto], quantidade: 2, Doador: Yudi Playsteicho/112233");
+		assertEquals(itemController.listaItens("doador"), "1 - pelucia, tags: [fofo, coelho], quantidade: 4, doador: Relampago Marquinhos/123456 | 2 - casaco, tags: [pele, adulto], quantidade: 2, doador: Yudi Playsteicho/112233");
 		
 		usuarioController.removeUsuario("123456");
 		usuarioController.removeUsuario("112233"); 
 		usuarioController.adicionaReceptor("123456", "Relampago Marquinhos", "relampago.marquinho@catchau.com", "2210-1022", "PESSOA_FISICA");
 		usuarioController.adicionaReceptor("112233", "Yudi Playsteicho", "yudi.prey@pleystetion.com", "4002-8922", "PESSOA_FISICA");
-		itemController.adicionaItem("123456", "Pelucia", 4, "fofo,coelho");
-		itemController.adicionaItem("112233", "Casaco", 2, "pele,adulto");
+		itemController.adicionaItemDoador("123456", "Pelucia", 4, "fofo,coelho");
+		itemController.adicionaItemDoador("112233", "Casaco", 2, "pele,adulto");
 		
-		assertEquals(itemController.listaItens("receptor"), "3 - pelucia, tags: [fofo, coelho], quantidade: 4, Receptor: Relampago Marquinhos/123456 | 4 - casaco, tags: [pele, adulto], quantidade: 2, Receptor: Yudi Playsteicho/112233");	
+		assertEquals(itemController.listaItens("receptor"), "3 - pelucia, tags: [fofo, coelho], quantidade: 4, Receptor: Relampago Marquinhos/123456 | 4 - casaco, tags: [pele, adulto], quantidade: 2, Receptor: Yudi Playsteicho/112233");
 	}
 }

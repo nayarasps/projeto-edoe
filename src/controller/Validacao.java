@@ -74,4 +74,10 @@ public class Validacao {
 			throw new IllegalArgumentException("Entrada invalida: data nao pode ser vazia ou nula.");
 		}
 	}
+
+	public void validaDescricoesDoacoes(String descricaoItemDoado, String descricaoItemNecessario) {
+		if (!descricaoItemDoado.equals(descricaoItemNecessario)){
+			throw new IllegalArgumentException("Os itens nao tem descricoes iguais.");
+		}
+	}
 }

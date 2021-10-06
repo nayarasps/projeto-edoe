@@ -17,8 +17,8 @@ public class DoacaoTeste {
 	 */
 	@Before
 	public void inicializaDoacao() {
-		doador = new Usuario("Yudi Playsteicho", "yudi.prey@pleystetion.com", "4002-8922", "PESSOA_FISICA", "112233");
-		receptor = new Usuario("Relampago Marquinhos", "relampago.marquinho@catchau.com", "2210-1022", "PESSOA_FISICA", "123456");
+		doador = new Doador("Yudi Playsteicho", "yudi.prey@pleystetion.com", "4002-8922", "PESSOA_FISICA", "112233");
+		receptor = new Receptor("Relampago Marquinhos", "relampago.marquinho@catchau.com", "2210-1022", "PESSOA_FISICA", "123456");
 		doacao1 = new Doacao(doador, receptor, 3, "13/01/17", "Cobertor");
 	}
 
