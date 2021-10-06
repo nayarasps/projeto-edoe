@@ -3,6 +3,7 @@ package backend;
 import java.io.IOException;
 
 import controller.Controller;
+import controller.DoacaoController;
 import controller.ItemController;
 import controller.UsuarioController;
 import easyaccept.EasyAccept;
@@ -12,18 +13,20 @@ public class Facade {
 	private Controller controller;
 	private ItemController itemController;
 	private UsuarioController usuarioController;
+	private DoacaoController doacaoController;
 	private Persistencia persistencia;
 	
 	public Facade() {
 		controller = new Controller();
 		usuarioController = new UsuarioController();
 		itemController = new ItemController(usuarioController);
-		 
+		doacaoController = new DoacaoController(itemController);
 	}
 	
 	public void iniciaSistema()  {
 		persistencia = new Persistencia();
 		persistencia.carregar(controller);
+
 	}
 	
 	public void finalizaSistema() {
@@ -61,7 +64,7 @@ public class Facade {
 	 }
 	
 	public int adicionaItemParaDoacao(String idDoador, String descricaoItem, int quantidade, String tags) {
-		return itemController.adicionaItem(idDoador, descricaoItem, quantidade, tags);
+		return itemController.adicionaItemDoador(idDoador, descricaoItem, quantidade, tags);
 	}
 	
 	public String exibeItem(int idItem, String idDoador) {
@@ -90,19 +93,19 @@ public class Facade {
 	
 	//Item Necessario Facade
 	public int adicionaItemNecessario(String idReceptor, String descricaoItem, int quantidade, String tags) {
-		return controller.adicionaItem(idReceptor, descricaoItem, quantidade, tags);
+		return itemController.adicionaItemReceptor(idReceptor, descricaoItem, quantidade, tags);
 	}
 	
 	public String atualizaItemNecessario(String idReceptor, int idItem, int quantidade, String tags) {
-		return controller.atualizaItem(idItem, idReceptor, quantidade, tags);
+		return itemController.atualizaItem(idItem, idReceptor, quantidade, tags);
 	}
 	
 	public String listaItensNecessarios() {
-		 return controller.listaItens("Receptor");
+		 return itemController.listaItens("receptor");
 	}
 	 
 	public void removeItemNecessario(String idReceptor, int idItem) {
-		controller.removeItem(idItem, idReceptor);
+		itemController.removeItem(idItem, idReceptor);
 	}
 	
 	public String match(String idReceptor, int idItemNecessario) {
@@ -110,11 +113,11 @@ public class Facade {
 	}
 	
 	public String realizaDoacao(int idItemNecessario, int idItemDoado, String data) {
-		return controller.realizaDoacao(idItemNecessario, idItemDoado, data);
+		return doacaoController.realizaDoacao(idItemNecessario, idItemDoado, data);
 	}
 	
 	public String listaDoacoes() {
-		return controller.listaDoacoes();
+		return doacaoController.listaDoacoes();
 	}
 	
 	public static void main(String[] args) {

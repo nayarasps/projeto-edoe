@@ -2,6 +2,8 @@ package controllerTestes;
 
 import static org.junit.Assert.*;
 
+import controller.DoacaoController;
+import controller.ItemController;
 import org.junit.*;
 
 import controller.Controller;
@@ -11,17 +13,21 @@ public class ControllerTeste {
 	
 	private Controller controller;
 	private UsuarioController usuarioController;
-	
+	private ItemController itemController;
+	private DoacaoController doacaoController;
+
 	@Before
 	public void inicializaController() {
 		controller = new Controller();
 		usuarioController = new UsuarioController();
+		itemController = new ItemController(usuarioController);
+		doacaoController = new DoacaoController(itemController);
 		
 		usuarioController.adicionaDoador("123456", "Relampago Marquinhos", "relampago.marquinho@catchau.com", "2210-1022", "PESSOA_FISICA");
 		usuarioController.adicionaDoador("112233", "Yudi Playsteicho", "yudi.prey@pleystetion.com", "4002-8922", "PESSOA_FISICA");
 
-		controller.adicionaItem("123456", "Pelucia", 4, "fofo,coelho");
-		controller.adicionaItem("112233", "Casaco", 2, "pele,adulto");
+		itemController.adicionaItemDoador("123456", "Pelucia", 4, "fofo,coelho");
+		itemController.adicionaItemDoador("112233", "Casaco", 2, "pele,adulto");
 	}
 
 	
@@ -53,12 +59,12 @@ public class ControllerTeste {
 	 */
 	@Test
 	public void testAdicionaItem() {
-		assertEquals(3, controller.adicionaItem("123456", "Papelao", 5, "reciclavel"));
-		assertEquals(4, controller.adicionaItem("112233", "Livro", 3, "classico,estrangeiro"));
-		assertEquals(5, controller.adicionaItem("112233", "Mochila", 4, ""));
+		assertEquals(3, itemController.adicionaItemDoador("123456", "Papelao", 5, "reciclavel"));
+		assertEquals(4, itemController.adicionaItemDoador("112233", "Livro", 3, "classico,estrangeiro"));
+		assertEquals(5, itemController.adicionaItemDoador("112233", "Mochila", 4, ""));
 		
 		// Item com o mesmo descritor e tags, porem quantidade diferente
-		assertEquals(1, controller.adicionaItem("123456", "Pelucia", 8, "fofo,coelho"));
+		assertEquals(1, itemController.adicionaItemDoador("123456", "Pelucia", 8, "fofo,coelho"));
 	}
 	
 	/**
@@ -67,16 +73,16 @@ public class ControllerTeste {
 	@Test(expected = IllegalArgumentException.class)
 	public void testValidaAdicionaItem() {
 			// Valida IdDoador vazio ou nulo
-		controller.adicionaItem(null, "Papelao", 5, "reciclavel");
-		controller.adicionaItem("", "Papelao", 5, "reciclavel");
+		itemController.adicionaItemDoador(null, "Papelao", 5, "reciclavel");
+		itemController.adicionaItemDoador("", "Papelao", 5, "reciclavel");
 			// Valida descricaoItem vazia ou nula
-		controller.adicionaItem("123456", null, 5, "reciclavel");
-		controller.adicionaItem("123456", "", 5, "reciclavel");
+		itemController.adicionaItemDoador("123456", null, 5, "reciclavel");
+		itemController.adicionaItemDoador("123456", "", 5, "reciclavel");
 			// Valida quantidade invalida (quantidade <= 0)
-		controller.adicionaItem("123456", "Papelao", -1, "reciclavel");
-		controller.adicionaItem("123456", "Papelao", 0, "reciclavel");
+		itemController.adicionaItemDoador("123456", "Papelao", -1, "reciclavel");
+		itemController.adicionaItemDoador("123456", "Papelao", 0, "reciclavel");
 			// Valida tags nulas
-		controller.adicionaItem("123456", "Papelao", 5, null);
+		itemController.adicionaItemDoador("123456", "Papelao", 5, null);
 	}
 
 	/**
@@ -86,8 +92,8 @@ public class ControllerTeste {
 	public void testExibeItem() {
 		assertEquals(controller.exibeItem(1, "123456"), "1 - pelucia, tags: [fofo, coelho], quantidade: 4");
 		assertEquals(controller.exibeItem(2, "112233"), "2 - casaco, tags: [pele, adulto], quantidade: 2");
-		
-		controller.adicionaItem("123456", "Geladeira", 1, "");
+
+		itemController.adicionaItemDoador("123456", "Geladeira", 1, "");
 		assertEquals(controller.exibeItem(3, "123456"), "3 - geladeira, tags: [], quantidade: 1");
 	}
 
@@ -165,19 +171,6 @@ public class ControllerTeste {
 			// Valida Usuario nao possui itens cadastrados
 		assertTrue(controller.getDadosItens().get("123456").containsKey(2));
 	}
-	
-	/**
-	 * Testa o metodo ListarItens
-	 */
-	@Test
-	public void testListaItens() {
-		assertEquals(controller.listaItens("doador"), "1 - pelucia, tags: [fofo, coelho], quantidade: 4, doador: Relampago Marquinhos/123456 | 2 - casaco, tags: [pele, adulto], quantidade: 2, doador: Yudi Playsteicho/112233");
-		
-		controller.getDadosItens().get("123456").get(1).getUser();
-		controller.getDadosItens().get("112233").get(2).getUser();
-		
-		assertEquals(controller.listaItens("Receptor"), "1 - pelucia, tags: [fofo, coelho], quantidade: 4, Receptor: Relampago Marquinhos/123456 | 2 - casaco, tags: [pele, adulto], quantidade: 2, Receptor: Yudi Playsteicho/112233");	
-	}
 
 	/**
 	 * Testa o metodo ListaDescritorDeItensParaDoacao
@@ -185,8 +178,8 @@ public class ControllerTeste {
 	@Test
 	public void testListaDescritorDeItensParaDoacao() {
 		assertEquals(controller.listaDescritorDeItensParaDoacao(), "2 - casaco | 4 - pelucia");
-		
-		controller.adicionaItem("112233", "CasAco", 8, "infantil,colorido");
+
+		itemController.adicionaItemDoador("112233", "CasAco", 8, "infantil,colorido");
 		assertEquals(controller.listaDescritorDeItensParaDoacao(), "10 - casaco | 4 - pelucia");
 	}
 
@@ -195,7 +188,7 @@ public class ControllerTeste {
 	 */
 	@Test
 	public void testPesquisaItemParaDoacaoPorDescricao() {
-		controller.adicionaItem("112233", "CasAco", 8, "infantil,colorido");
+		itemController.adicionaItemDoador("112233", "CasAco", 8, "infantil,colorido");
 		assertEquals(controller.pesquisaItemParaDoacaoPorDescricao("cAsaCO"), "2 - casaco, tags: [pele, adulto], quantidade: 2 | 3 - casaco, tags: [infantil, colorido], quantidade: 8");
 	}
 
@@ -213,11 +206,11 @@ public class ControllerTeste {
 	@Test
 	public void testMatch() {
 		usuarioController.getUsuarios().get("123456");
-		controller.adicionaItem("112233", "pelucia", 3, "fofo, coelho");
-		controller.adicionaItem("112233", "pelucia", 3, "fofo, gato");
-		controller.adicionaItem("112233", "pelucia", 3, "gato, fofo");
-		controller.adicionaItem("112233", "pelucia", 3, "coelho, fofo");
-		controller.adicionaItem("112233", "pelucia", 3, "algodao, macaco");
+		itemController.adicionaItemDoador("112233", "pelucia", 3, "fofo, coelho");
+		itemController.adicionaItemDoador("112233", "pelucia", 3, "fofo, gato");
+		itemController.adicionaItemDoador("112233", "pelucia", 3, "gato, fofo");
+		itemController.adicionaItemDoador("112233", "pelucia", 3, "coelho, fofo");
+		itemController.adicionaItemDoador("112233", "pelucia", 3, "algodao, macaco");
 		
 		assertEquals(controller.match("123456", 1), "3 - pelucia, tags: [fofo,  coelho], quantidade: 3, doador: Yudi Playsteicho/112233 | 4 - pelucia, tags: [fofo,  gato], quantidade: 3, doador: Yudi Playsteicho/112233 | 6 - pelucia, tags: [coelho,  fofo], quantidade: 3, doador: Yudi Playsteicho/112233 | 5 - pelucia, tags: [gato,  fofo], quantidade: 3, doador: Yudi Playsteicho/112233 | 7 - pelucia, tags: [algodao,  macaco], quantidade: 3, doador: Yudi Playsteicho/112233");
 	}
@@ -250,7 +243,7 @@ public class ControllerTeste {
 	@Test
 	public void testRealizaDoacao() {
 		usuarioController.getUsuarios().get("123456");
-		controller.adicionaItem("112233", "pelucia", 3, "fofo, coelho");
+		itemController.adicionaItemDoador("112233", "pelucia", 3, "fofo, coelho");
 		
 		assertEquals(controller.realizaDoacao(1, 3, "12/01/18"), "12/01/18 - doador: Yudi Playsteicho/112233, item: pelucia, quantidade: 3, receptor: Relampago Marquinhos/123456");
 		assertEquals(controller.getDadosItens().get("123456").get(1).getQuantidade(), 1);
@@ -275,27 +268,5 @@ public class ControllerTeste {
 			// Verifica Descricao igual
 		usuarioController.getUsuarios().get("123456");
 		controller.realizaDoacao(1, 2, "11/04/18");
-	}
-	
-	/**
-	 * Testa o metodo ListaDoacoes
-	 */
-	@Test
-	public void testListaDoacoes() {
-		usuarioController.getUsuarios().get("123456");
-		
-		controller.adicionaItem("112233", "vestido", 2, "curto, vermelho");
-		controller.adicionaItem("123456", "vestido", 3, "azul, longo");
-		controller.realizaDoacao(4, 3, "14/08/18");
-		
-		controller.adicionaItem("112233", "Livro", 7, "classico");
-		controller.adicionaItem("123456", "livro", 4, "");
-		controller.realizaDoacao(5, 6, "14/08/18");
-		
-		controller.adicionaItem("112233", "Colchao", 2, "molas");
-		controller.adicionaItem("123456", "colchao", 3, "infantil, espuma");
-		controller.realizaDoacao(7, 8, "15/10/16");
-		
-		assertEquals(controller.listaDoacoes(), "15/10/16 - doador: Relampago Marquinhos/123456, item: colchao, quantidade: 2, receptor: Yudi Playsteicho/112233 | 14/08/18 - doador: Relampago Marquinhos/123456, item: livro, quantidade: 4, receptor: Yudi Playsteicho/112233 | 14/08/18 - doador: Yudi Playsteicho/112233, item: vestido, quantidade: 2, receptor: Relampago Marquinhos/123456");
 	}
 }

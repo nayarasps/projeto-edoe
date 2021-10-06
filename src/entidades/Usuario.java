@@ -1,9 +1,7 @@
 package entidades;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 
 public abstract class Usuario implements Comparable<Usuario>, Serializable {
@@ -15,7 +13,7 @@ public abstract class Usuario implements Comparable<Usuario>, Serializable {
 	protected String id;
 	protected String status;
 
-	protected HashMap<Integer, Item> itens;;
+	protected HashMap<Integer, Item> itens;
 	
 	/**
 	 * Metodo construtor de um Usuario.
@@ -101,33 +99,23 @@ public abstract class Usuario implements Comparable<Usuario>, Serializable {
 		this.status = status;
 	}
 
+	public Boolean verificaUsuarioPossuiItem(int idItem) {
+		return itens.containsKey(idItem);
+	}
+
+	public Item getItemById(int idItem) {
+		return itens.get(idItem);
+	}
+
+	public void removeItembyid(int idItem) {
+		itens.remove(idItem);
+	}
+
 	@Override
 	public String toString() {
 			return this.nome + "/" + this.id + ", " + this.email + ", " + this.celular + ", status: " + this.status;
 		}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		Usuario other = (Usuario) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
 	
 	@Override
 	public int compareTo(Usuario o) {

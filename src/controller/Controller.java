@@ -6,16 +6,16 @@ import java.util.*;
 import entidades.*;
 
 public class Controller {
-	
+
 	/**
-	 * 
+	 *
 	 * Classe responsavel pelo armazenamento dos usuarios,itens, doacoes e descritores
 	 * quando cadastrados.
 	 * Possui um contador que gera um inteiro identificador de cada item cadastrado;
 	 * Possui Validacao que verifica as informacoes oferecidas pelo usuario do sistema.
-	 * 
+	 *
 	 */
-	private UsuarioController usuarioController;
+	private final UsuarioController usuarioController;
 	private HashMap<String, HashMap<Integer, Item>> itens;
 	private TreeSet<String> descritores;
 	private List<Doacao> doacoes;
@@ -24,14 +24,7 @@ public class Controller {
 	private LinkedHashMap<String, Usuario> usuarios;
 	
 	
-	/**
-	 * Metodo construtor do Controller.
-	 * 
-	 * @param usuarios que representa um LinkedHashMap dos usuarios cadastrados, possuindo como key o id string do usuario.
-	 * @param itens que representa um HashMap dos itens cadastrados, tendo como key o identificador inteiro gerado em seu cadastro.
-	 * @param descritores que representa uma TreeSet de descritores string cadastrados pelo usuario.
-	 * @param doacoes que representa uma ArrayList contendo doacoes realizadas pelo sistema.
-	 */
+
 	public Controller() {
 		this.usuarioController = new UsuarioController();
 		this.usuarios = usuarioController.getUsuarios();
@@ -82,53 +75,12 @@ public class Controller {
 	}
 	
 	private boolean verificaDoadorPossuiItem(Usuario doador, Item item) {
-		if (doador.getItens().contains(item)) {
+		if (doador.getItens().containsKey(item)) {
 			return true;
 		}
 		return false;
 	}
-	
 
-	public int adicionaItem(String idDoador, String descricaoItem, int quantidade, String tags) {
-		 valida.verificaIdUsuario(idDoador);
-		
-
-		 int key = identificador;
-		 
-		 Item item = criaItem(descricaoItem, quantidade, tags);
-		 item.setIdItem(identificador);
-		 
-		 Usuario doador = getUsuariobyId(idDoador);
-		 
-		 List<Item> doadorItens = doador.getItens();
-		 
-		 doadorItens.add(item);
-		 
-		 if (usuarios.containsKey(idDoador)) {
-			if (!(itens.containsKey(idDoador))) {
-				itens.put(idDoador, new HashMap<Integer, Item>());
-				itens.get(idDoador).put(identificador, item);
-				itens.get(idDoador).get(identificador).setUser(usuarios.get(idDoador));
-				identificador++; 
-			}else {
-				Set<Integer> keys = itens.get(idDoador).keySet();
-				for (Integer o : keys) {
-					if (itens.get(idDoador).get(o).getDescricaoItem().equals(item.getDescricaoItem().toLowerCase().trim()) 
-							&& itens.get(idDoador).get(o).getTags().equals(item.getTags()) ) {
-						key = o;
-					}
-				}
-				identificador++; 
-				item.setIdItem(key);
-				itens.get(idDoador).put(key, item);
-				itens.get(idDoador).get(key).setUser(usuarios.get(idDoador));
-			}
-		 }else {
-			 valida.usuarioNaoEncontrado(idDoador);;
-		 }
-		 return item.getIdItem();
-	 }
-	
 	/**
 	 * Metodo que exibe um Item a partir de seu id e do id do seu Usuario associado.
 	 *  
@@ -211,43 +163,6 @@ public class Controller {
 		itens.get(idDoador).remove(id);
 	 }
 
-	/**
-	 * Metodo que lista os Itens contidos em itens.
-	 * Os Itens sao diferenciados pelo status de seus Usuarios, podendo ser Itens doados ou necessarios.
-	 * 
-	 * @param status que identifica o tipo de Itens a serem listados, entre os doados e os necessarios.
-	 * @return String que possui a representacao em string dos Itens de acordo com o status dos seus usuarios associados.
-	 */
-	public String listaItens(String status) {
-		String saida = "";
-		List<Item> list = new ArrayList<Item>();
-		for (String u : itens.keySet()) {
-			if (usuarios.get(u).getStatus().equals(status.toLowerCase())) {
-				for (Integer i : itens.get(u).keySet()) {
-					list.add(itens.get(u).get(i));
-				}
-			}
-		}
-		if (status.equals("Receptor")) {
-			Collections.sort(list, Item.comparaIdItem);
-			for (int i = 0; i < list.size(); i++) {
-				saida += list.get(i).toString();
-				saida += ", Receptor: " + list.get(i).getUser().getNome() + "/" + list.get(i).getUser().getId();
-				saida += " | ";
-			}
-		}else if (status.equals("doador")) {
-			Collections.sort(list, Item.comparaQuantidade);
-			for (int i = 0; i < list.size(); i++) {
-				saida += list.get(i).toString();
-				saida += ", doador: " + list.get(i).getUser().getNome() + "/" + list.get(i).getUser().getId();
-				saida += " | ";
-			}
-		}
-		if (saida.equals("")) {
-			throw new IllegalArgumentException("Nenhum item cadastrado.");
-		}
-		return saida.substring(0, saida.length() - 3);
-	}
 		
 	/**
 	 * Metodo que lista os Strings descritores contidos em descritores, junto com suas quantidades de acordo com os Itens cadastrados.
@@ -260,7 +175,7 @@ public class Controller {
 			int quant = 0;
 			for (String u : itens.keySet()) {
 				for (Integer i : itens.get(u).keySet()) {
-					if ( d.equals(itens.get(u).get(i).getDescricaoItem())) {
+					if ( d.equals(itens.get(u).get(i).getDescricao())) {
 						quant += itens.get(u).get(i).getQuantidade();
 					}
 				}
@@ -286,7 +201,7 @@ public class Controller {
 		List<Item> list = new ArrayList<Item>();
 		for (String u : itens.keySet()) {
 			for (Integer i : itens.get(u).keySet()) {
-				if (itens.get(u).get(i).getDescricaoItem().contains(desc.toLowerCase().trim())) {
+				if (itens.get(u).get(i).getDescricao().contains(desc.toLowerCase().trim())) {
 					list.add(itens.get(u).get(i));
 				}
 			}
@@ -332,7 +247,7 @@ public class Controller {
 			for (Integer i : itens.get(u).keySet()) {
 				int pontuacao = 0;
 				if (itens.get(u).get(i).getUser().getStatus().equals("doador")) {
-					if (itens.get(u).get(i).getDescricaoItem().equals(itens.get(idReceptor).get(idItemNecessario).getDescricaoItem())) {
+					if (itens.get(u).get(i).getDescricao().equals(itens.get(idReceptor).get(idItemNecessario).getDescricao())) {
 						pontuacao += 20;
 						for (String tag : itens.get(u).get(i).getTags().split(",")) {
 							for(String tagItem : itens.get(idReceptor).get(idItemNecessario).getTags().split(",")) {
@@ -408,11 +323,11 @@ public class Controller {
 		if (idDoador.equals("")) {
 			valida.itemNaoEncontrado(idItemDoado);
 		}
-		if (!(itens.get(idDoador).get(idItemDoado).getDescricaoItem().equals(itens.get(idReceptor).get(idItemNecessario).getDescricaoItem()))) {
+		if (!(itens.get(idDoador).get(idItemDoado).getDescricao().equals(itens.get(idReceptor).get(idItemNecessario).getDescricao()))) {
 			throw new IllegalArgumentException("Os itens nao tem descricoes iguais.");
 		}
 		
-		Doacao doacao = new Doacao(usuarios.get(idDoador), usuarios.get(idReceptor), 0, data, itens.get(idReceptor).get(idItemNecessario).getDescricaoItem());
+		Doacao doacao = new Doacao(usuarios.get(idDoador), usuarios.get(idReceptor), 0, data, itens.get(idReceptor).get(idItemNecessario).getDescricao());
 		
 		if (itens.get(idDoador).get(idItemDoado).getQuantidade() > itens.get(idReceptor).get(idItemNecessario).getQuantidade()) {
 			doacao.setQuantidadeDoada(itens.get(idReceptor).get(idItemNecessario).getQuantidade());

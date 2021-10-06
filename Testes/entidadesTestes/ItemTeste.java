@@ -34,7 +34,7 @@ public class ItemTeste {
 	 */
 	@Test
 	public void testGetDescricaoItem() {
-		assertEquals(item1.getDescricaoItem(), "Pelucia");
+		assertEquals(item1.getDescricao(), "Pelucia");
 	}
 
 	/**
@@ -42,10 +42,10 @@ public class ItemTeste {
 	 */
 	@Test
 	public void testGetSetIdItem() {
-		assertTrue(item1.getIdItem() == 0);
+		assertEquals(0, item1.getId());
 		
-		item1.setIdItem(5);
-		assertTrue(item1.getIdItem() == 5);
+		item1.setId(5);
+		assertEquals(5, item1.getId());
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class ItemTeste {
 	 */
 	@Test
 	public void testToString() {
-		item1.setIdItem(1);
+		item1.setId(1);
 		assertEquals(item1.toString(), "1 - Pelucia, tags: [fofo, coelho], quantidade: 4");
 	}
 
