@@ -34,6 +34,35 @@ public class DoacaoController {
         return receptor;
     }
 
+    // Os valores se invertem pois depois de utilizar o método modificaQuantidadeItens() os valores dos itens se alteram
+    private void removeItensDoados(Item itemDoado, Item itemNecessario, Receptor receptor, Doador doador) {
+        if (itemDoado.getQuantidade() < itemNecessario.getQuantidade()) {
+            receptor.removeItembyid(itemNecessario.getId());
+        }
+        else if (itemDoado.getQuantidade() > itemNecessario.getQuantidade()) {
+            doador.removeItembyid(itemDoado.getId());
+        }
+        else {
+            receptor.removeItembyid(itemNecessario.getId());
+            doador.removeItembyid(itemDoado.getId());
+        }
+    }
+
+    private void modificaQuantidadeItens(Item itemDoado, Item itemNecessario, Doacao doacao, int novaQuantidadeItens) {
+        if (itemDoado.getQuantidade() > itemNecessario.getQuantidade()) {
+            doacao.setQuantidadeDoada(itemNecessario.getQuantidade());
+            itemDoado.setQuantidade(novaQuantidadeItens);
+        }
+        else if (itemDoado.getQuantidade() < itemNecessario.getQuantidade()) {
+            doacao.setQuantidadeDoada(itemDoado.getQuantidade());
+            itemNecessario.setQuantidade(novaQuantidadeItens);
+        }
+        else {
+            doacao.setQuantidadeDoada(itemNecessario.getQuantidade());
+        }
+    }
+
+
     public String realizaDoacao(int idItemNecessario, int idItemDoado, String data) {
         valida.verificaIdItem(idItemDoado);
         valida.verificaIdItem(idItemNecessario);
@@ -67,7 +96,11 @@ public class DoacaoController {
             doador.removeItembyid(idItemDoado);
         }
 
+        //modificaQuantidadeItens(itemDoado, itemNecessario, doacao, novaQuantidadeItens);
+        //removeItensDoados(itemDoado, itemNecessario, receptor, doador);
+
         doacoes.add(doacao);
+
         return doacao.toString();
     }
 

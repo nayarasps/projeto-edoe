@@ -24,8 +24,8 @@ public class DoacaoControllerTest {
         usuarioController.adicionaReceptor("123456", "Relampago Marquinhos", "relampago.marquinho@catchau.com", "2210-1022", "PESSOA_FISICA");
         usuarioController.adicionaDoador("112233", "Yudi Playsteicho", "yudi.prey@pleystetion.com", "4002-8922", "PESSOA_FISICA");
 
-        itemController.adicionaItemDoador("123456", "Pelucia", 4, "fofo,coelho");
-        itemController.adicionaItemDoador("112233", "Casaco", 2, "pele,adulto");
+        itemController.adicionaItemDoador("112233", "Pelucia", 4, "fofo,coelho");
+        itemController.adicionaItemReceptor("123456", "Casaco", 2, "pele,adulto");
     }
 
     /**
@@ -52,12 +52,12 @@ public class DoacaoControllerTest {
     @Test
     public void testRealizaDoacao() {
 
-        itemController.adicionaItemDoador("112233", "pelucia", 3, "fofo, coelho");
+        itemController.adicionaItemReceptor("123456", "pelucia", 3, "fofo, coelho");
 
-        assertEquals(doacaoController.realizaDoacao(1, 3, "12/01/18"), "12/01/18 - doador: Yudi Playsteicho/112233, item: pelucia, quantidade: 3, receptor: Relampago Marquinhos/123456");
-        assertEquals(itemController.encontraItensPorIdUsuario("123456").get(1).getQuantidade(), 1);
+        assertEquals(doacaoController.realizaDoacao(3, 1, "12/01/18"), "12/01/18 - doador: Yudi Playsteicho/112233, item: pelucia, quantidade: 3, receptor: Relampago Marquinhos/123456");
+        assertEquals(itemController.encontraItensPorIdUsuario("112233").get(1).getQuantidade(), 1);
 
-        assertFalse(itemController.encontraItensPorIdUsuario("112233").containsKey(3));
+        assertFalse(itemController.encontraItensPorIdUsuario("123456").containsKey(3));
     }
 
     /**
