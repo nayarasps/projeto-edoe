@@ -157,12 +157,10 @@ public class ItemController {
 		boolean quantidadePositiva = quantidade > 0;
 		boolean tagsValidadas = !(tags == null || "".equals(tags.trim()));
 
-		// Atualiza Quantidade
 		if(quantidadePositiva) {
 			item.setQuantidade(quantidade);
 		}
 
-		// Atualiza Tags
 		if(tagsValidadas) {
 			item.setTags(tags);
 		}
