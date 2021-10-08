@@ -147,30 +147,24 @@ public class ItemController {
 	}
 
 	
-	public String atualizaItem(int idItem, String idDoador, int quantidade, String tags) {
+	public String atualizaItem(int idItem, String idDoador, int quantidade, String tags) 
+	{
 		valida.verificaIdItem(idItem);
 		valida.verificaIdUsuario(idDoador);
 		
-		
 		Item item = encontraItemPorIdDoadorItem(idDoador, idItem);
-		
-		// Atualiza Tags
-		if ((quantidade <= 0) && !(tags == null || "".equals(tags.trim()))) {
-			item.setTags(tags);
-		}
-		// Atualiza Quantidade
-		if ((quantidade > 0) && (tags == null || "".equals(tags.trim()))) {
+
+		boolean quantidadePositiva = quantidade > 0;
+		boolean tagsValidadas = !(tags == null || "".equals(tags.trim()));
+
+		if(quantidadePositiva) {
 			item.setQuantidade(quantidade);
 		}
-		// Retorna Item sem atualizacao
-		if ((quantidade <= 0) && (tags == null || "".equals(tags.trim()))) {
-			return item.toString();
-		}
-		// Atualiza Quantidade e Tags
-		if ((quantidade > 0) && !(tags == null || "".equals(tags.trim()))) {
-			item.setQuantidade(quantidade);
+
+		if(tagsValidadas) {
 			item.setTags(tags);
 		}
+
 		return item.toString();
 	}
 	 
