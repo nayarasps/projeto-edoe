@@ -43,7 +43,7 @@ public class Facade {
 	}
 	
 	public String pesquisaUsuarioPorId(String id) {
-		return usuarioController.pesquisaUsuarioPorId(id);
+		return usuarioController.pesquisaUsuarioPorId(id).toString();
 	}
 	
 	public String pesquisaUsuarioPorNome(String nome) {

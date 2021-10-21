@@ -55,7 +55,7 @@ public class DoacaoControllerTest {
         itemController.adicionaItemReceptor("123456", "pelucia", 3, "fofo, coelho");
 
         assertEquals(doacaoController.realizaDoacao(3, 1, "12/01/18"), "12/01/18 - doador: Yudi Playsteicho/112233, item: pelucia, quantidade: 3, receptor: Relampago Marquinhos/123456");
-        assertEquals(itemController.encontraItensPorIdUsuario("112233").get(1).getQuantidade(), 1);
+        assertEquals(1, itemController.encontraItensPorIdUsuario("112233").get(1).getQuantidade());
 
         assertFalse(itemController.encontraItensPorIdUsuario("123456").containsKey(3));
     }
@@ -78,7 +78,7 @@ public class DoacaoControllerTest {
         itemController.adicionaItemReceptor("123456", "colchao", 3, "infantil, espuma");
         doacaoController.realizaDoacao(8, 7, "15/10/16");
 
-        assertEquals(doacaoController.listaDoacoes(), "15/10/16 - doador: Yudi Playsteicho/112233, item: colchao, quantidade: 2, receptor: Relampago Marquinhos/123456 | 14/08/18 - doador: Yudi Playsteicho/112233, item: livro, quantidade: 4, receptor: Relampago Marquinhos/123456 | 14/08/18 - doador: Yudi Playsteicho/112233, item: vestido, quantidade: 2, receptor: Relampago Marquinhos/123456");
+        assertEquals("15/10/16 - doador: Yudi Playsteicho/112233, item: colchao, quantidade: 2, receptor: Relampago Marquinhos/123456 | 14/08/18 - doador: Yudi Playsteicho/112233, item: livro, quantidade: 4, receptor: Relampago Marquinhos/123456 | 14/08/18 - doador: Yudi Playsteicho/112233, item: vestido, quantidade: 2, receptor: Relampago Marquinhos/123456", doacaoController.listaDoacoes());
     }
 
 }

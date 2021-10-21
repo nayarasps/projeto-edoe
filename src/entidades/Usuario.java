@@ -104,7 +104,10 @@ public abstract class Usuario implements Comparable<Usuario>, Serializable {
 	}
 
 	public Item getItemById(int idItem) {
-		return itens.get(idItem);
+		if (itens.containsKey(idItem)) {
+			return itens.get(idItem);
+		}
+		throw new IllegalArgumentException("Item nao encontrado: " + idItem + ".");
 	}
 
 	public void removeItembyid(int idItem) {
