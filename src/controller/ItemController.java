@@ -106,8 +106,8 @@ public class ItemController {
 
 	private int encontraIdItemJaExistente(HashMap<Integer, Item> itensDoador, Item item) {
 
-		for (Integer chave : itensDoador.keySet()) {
-			Item itemAtual = itensDoador.get(chave);
+		for (Map.Entry<Integer, Item> entradaItem : itensDoador.entrySet()) {
+			Item itemAtual = entradaItem.getValue();
 
 			if (comparaDescricaoTags(itemAtual, item)) {
 				return itemAtual.getId();

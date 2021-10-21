@@ -327,16 +327,19 @@ public class Controller {
 			throw new IllegalArgumentException("Os itens nao tem descricoes iguais.");
 		}
 		
-		Doacao doacao = new Doacao(usuarios.get(idDoador), usuarios.get(idReceptor), 0, data, itens.get(idReceptor).get(idItemNecessario).getDescricao());
+		Doacao doacao = new Doacao(usuarios.get(idDoador), usuarios.get(idReceptor), 0,
+				data, itens.get(idReceptor).get(idItemNecessario).getDescricao());
 		
 		if (itens.get(idDoador).get(idItemDoado).getQuantidade() > itens.get(idReceptor).get(idItemNecessario).getQuantidade()) {
 			doacao.setQuantidadeDoada(itens.get(idReceptor).get(idItemNecessario).getQuantidade());
-			itens.get(idDoador).get(idItemDoado).setQuantidade(itens.get(idDoador).get(idItemDoado).getQuantidade() - itens.get(idReceptor).get(idItemNecessario).getQuantidade());
+			itens.get(idDoador).get(idItemDoado).setQuantidade(itens.get(idDoador)
+					.get(idItemDoado).getQuantidade() - itens.get(idReceptor).get(idItemNecessario).getQuantidade());
 			itens.get(idReceptor).remove(idItemNecessario);
 		}
 		else if (itens.get(idDoador).get(idItemDoado).getQuantidade() < itens.get(idReceptor).get(idItemNecessario).getQuantidade()) {
 			doacao.setQuantidadeDoada(itens.get(idDoador).get(idItemDoado).getQuantidade());
-			itens.get(idReceptor).get(idItemNecessario).setQuantidade(itens.get(idReceptor).get(idItemNecessario).getQuantidade() - itens.get(idDoador).get(idItemDoado).getQuantidade());
+			itens.get(idReceptor).get(idItemNecessario).setQuantidade(itens.get(idReceptor)
+					.get(idItemNecessario).getQuantidade() - itens.get(idDoador).get(idItemDoado).getQuantidade());
 			itens.get(idDoador).remove(idItemDoado);
 		}
 		else if (itens.get(idDoador).get(idItemDoado).getQuantidade() == itens.get(idReceptor).get(idItemNecessario).getQuantidade()) {

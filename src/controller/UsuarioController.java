@@ -106,12 +106,12 @@ public class UsuarioController {
 		return saida.toString();
 	}
 
-	public String pesquisaUsuarioPorId(String id) {
+	public Usuario pesquisaUsuarioPorId(String id) {
 		valida.verificaIdUsuario(id);
 		if (!(usuarios.containsKey(id))) {
 			valida.usuarioNaoEncontrado(id);
 		}
-		return usuarios.get(id).toString();
+		return usuarios.get(id);
 	}
 	
 	public String pesquisaUsuarioPorNome(String nome) {
