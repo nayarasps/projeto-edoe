@@ -208,15 +208,4 @@ public class UsuarioController {
 		}
 		return usuario;
 	}
-
-	public List<Item> getItensDoadores() {
-
-		List<Item> itensDoadores = new ArrayList<Item>();
-
-		for (Doador doador : getDoadores()) {
-			itensDoadores.addAll(doador.getItens().values());
-		}
-
-		return itensDoadores;
-	}
 }
