@@ -210,7 +210,7 @@ public class ItemController {
 	
 	public String listaDescritorDeItensParaDoacao() {
 
-		List<Item> itensDoacao = usuarioController.getItensDoadores();
+		List<Item> itensDoacao = getItensDoadores();
 
 		StringBuilder saida = new StringBuilder();
 		for (String descritor : descritores) {
@@ -248,7 +248,7 @@ public class ItemController {
 	public String pesquisaItemParaDoacaoPorDescricao(String desc) {
 		valida.verificaTextoPesquisa(desc);
 
-		List<Item> itensDoacao = usuarioController.getItensDoadores();
+		List<Item> itensDoacao = getItensDoadores();
 
 		List<Item> itensEncontrados = new ArrayList<Item>();
 
@@ -268,4 +268,14 @@ public class ItemController {
 		return this.descritores;
 	}
 
+	public List<Item> getItensDoadores() {
+
+		List<Item> itensDoadores = new ArrayList<Item>();
+
+		for (Doador doador : usuarioController.getDoadores()) {
+			itensDoadores.addAll(doador.getItens().values());
+		}
+
+		return itensDoadores;
+	}
 }

@@ -55,7 +55,6 @@ public class DoacaoController {
 
         doacoes.add(doacao);
 
-
         return doacao.toString();
     }
 
@@ -77,54 +76,73 @@ public class DoacaoController {
         Receptor receptor = encontraReceptorPorIdItem(idItemNecessario);
         Item itemNecessario = receptor.getItemById(idItemNecessario);
 
-        String saida = "";
-        List<Item> list = new ArrayList<Item>();
-        for (String u : itens.keySet()) {
-            for (Integer i : itens.get(u).keySet()) {
-                int pontuacao = 0;
-                if (itens.get(u).get(i).getUser().getStatus().equals("doador")) {
-                    if (itens.get(u).get(i).getDescricao().equals(itens.get(idReceptor).get(idItemNecessario).getDescricao())) {
-                        pontuacao += 20;
-                        for (String tag : itens.get(u).get(i).getTags().split(",")) {
-                            for(String tagItem : itens.get(idReceptor).get(idItemNecessario).getTags().split(",")) {
-                                if (itens.get(idReceptor).get(idItemNecessario).getTags().split(",").length <= itens.get(u).get(i).getTags().split(",").length) {
-                                    for (int j = 0; j < itens.get(u).get(i).getTags().split(",").length; j++) {
-                                        if (tagItem.contentEquals(tag)) {
-                                            pontuacao += 10;
-                                        }
-                                        else if (tagItem.contains(tag)) {
-                                            pontuacao += 5;
-                                        }
-                                    }
-                                }else if (itens.get(idReceptor).get(idItemNecessario).getTags().split(",").length > itens.get(u).get(i).getTags().split(",").length) {
-                                    for (int j = 0; j < itens.get(idReceptor).get(idItemNecessario).getTags().split(",").length; j++) {
-                                        if (tagItem.contentEquals(tag)) {
-                                            pontuacao += 10;
-                                        }
-                                        else if (tagItem.contains(tag)) {
-                                            pontuacao += 5;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        itens.get(u).get(i).setPontuacaoMatch(pontuacao);
-                        list.add(itens.get(u).get(i));
-                    }
-                }
+        List<Item> itensDoados = itemController.getItensDoadores();
+        List<Item> itensComMatch = new ArrayList<Item>();
+
+        for (Item itemDoado: itensDoados) {
+            int pontuacao = 0;
+
+            if (itemDoado.getDescricao().equals(itemNecessario.getDescricao())) {
+                pontuacao += 20;
+
+                pontuacao += comparaTags(itemDoado, itemNecessario);
+
+                itemDoado.setPontuacaoMatch(pontuacao);
+                itensComMatch.add(itemDoado);
             }
+
+
         }
-        Collections.sort(list, Item.comparaPontuacaoMatch);
-        for (int i = 0; i < list.size(); i++) {
-            saida += list.get(i).toString() + ", doador: " + list.get(i).getUser().getNome() + "/" + list.get(i).getUser().getId();
-            saida += " | ";
+
+        return itensComMatch.toString();
+    }
+
+    private String formataSaidaMatches(List<Item> itensComMatch) {
+        StringBuilder saida = new StringBuilder();
+
+        Collections.sort(itensComMatch, Item.comparaPontuacaoMatch);
+        for (int i = 0; i < itensComMatch.size(); i++) {
+            saida.append(itensComMatch.get(i).toString()).append(", doador: ").append(itensComMatch.get(i).getUser().getNome()).append("/").append(itensComMatch.get(i).getUser().getId());
+            saida.append(" | ");
         }
-        if (saida.equals("")) {
+        if (saida.toString().equals("")) {
             return "";
         }
         return saida.substring(0, saida.length() - 3);
     }
 
+    private int comparaTags(Item itemDoado, Item itemNecessario) {
+        String[] tagsItemDoado = itemDoado.getTags().split(",");
+        String[] tagsItemNecessario = itemNecessario.getTags().split(",");
+
+        int pontos = 0;
+
+        for (String tag : tagsItemDoado) {
+            for(String tagItem : tagsItemNecessario) {
+                if (tagsItemNecessario.length <= tagsItemDoado.length) {
+                    for (int j = 0; j < tagsItemDoado.length; j++) {
+                        if (tagItem.contentEquals(tag)) {
+                            pontos += 10;
+                        }
+                        else if (tagItem.contains(tag)) {
+                            pontos += 5;
+                        }
+                    }
+                }else if (tagsItemNecessario.length > tagsItemDoado.length) {
+                    for (int j = 0; j < tagsItemNecessario.length; j++) {
+                        if (tagItem.contentEquals(tag)) {
+                            pontos += 10;
+                        }
+                        else if (tagItem.contains(tag)) {
+                            pontos += 5;
+                        }
+                    }
+                }
+            }
+        }
+
+        return pontos;
+    }
 
     private Doador encontraDoadorPorIdItem(int idItem) {
         Doador doador = itemController.encontraDoadorPorIdItem(idItem);
@@ -151,4 +169,5 @@ public class DoacaoController {
         }
         return receptor;
     }
+
 }

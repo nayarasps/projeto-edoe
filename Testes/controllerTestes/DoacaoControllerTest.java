@@ -13,11 +13,12 @@ public class DoacaoControllerTest {
 
     private ItemController itemController;
     private DoacaoController doacaoController;
+    private UsuarioController usuarioController;
 
 
     @Before
     public void inicializaController() {
-        UsuarioController usuarioController = new UsuarioController();
+        usuarioController = new UsuarioController();
         itemController = new ItemController(usuarioController);
         doacaoController = new DoacaoController(itemController);
 
@@ -81,4 +82,35 @@ public class DoacaoControllerTest {
         assertEquals("15/10/16 - doador: Yudi Playsteicho/112233, item: colchao, quantidade: 2, receptor: Relampago Marquinhos/123456 | 14/08/18 - doador: Yudi Playsteicho/112233, item: livro, quantidade: 4, receptor: Relampago Marquinhos/123456 | 14/08/18 - doador: Yudi Playsteicho/112233, item: vestido, quantidade: 2, receptor: Relampago Marquinhos/123456", doacaoController.listaDoacoes());
     }
 
+    @Test
+    public void testMatch() {
+        usuarioController.getUsuarios().get("123456");
+        itemController.adicionaItemReceptor("123456", "Pelucia", 4, "fofo,coelho");
+
+        itemController.adicionaItemDoador("112233", "pelucia", 3, "fofo, gato");
+        itemController.adicionaItemDoador("112233", "pelucia", 3, "gato, fofo");
+        itemController.adicionaItemDoador("112233", "pelucia", 3, "coelho, fofo");
+        itemController.adicionaItemDoador("112233", "pelucia", 3, "algodao, macaco");
+
+        assertEquals("1 - pelucia, tags: [fofo,  coelho], quantidade: 4, doador: Yudi Playsteicho/112233 | 4 - pelucia, tags: [fofo,  gato], quantidade: 3, doador: Yudi Playsteicho/112233 | 6 - pelucia, tags: [coelho,  fofo], quantidade: 3, doador: Yudi Playsteicho/112233 | 5 - pelucia, tags: [gato,  fofo], quantidade: 3, doador: Yudi Playsteicho/112233 | 7 - pelucia, tags: [algodao,  macaco], quantidade: 3, doador: Yudi Playsteicho/112233", doacaoController.match("123456", 3));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValidaMatch() {
+        // Valida IdReceptor nao deve ser vazio ou nulo
+        doacaoController.match(null, 1);
+        doacaoController.match("", 1);
+        // Valida IdItem nao pode ser negativo ou igual a zero
+        doacaoController.match("123456", -1);
+        doacaoController.match("123456", 0);
+        // Valida Usuario no encontrado
+        usuarioController.getUsuarios().containsKey("4515654");
+        // Valida Usuario deve ser um receptor
+        doacaoController.match("123456", 1);
+
+        usuarioController.getUsuarios().get("123456");
+        // Valida Item nao encontrado
+        itemController.getItensDoadores().get(45);
+
+    }
 }
