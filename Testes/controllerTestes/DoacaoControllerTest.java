@@ -91,8 +91,10 @@ public class DoacaoControllerTest {
         itemController.adicionaItemDoador("112233", "pelucia", 3, "gato, fofo");
         itemController.adicionaItemDoador("112233", "pelucia", 3, "coelho, fofo");
         itemController.adicionaItemDoador("112233", "pelucia", 3, "algodao, macaco");
+      
+        assertEquals("1 - pelucia, tags: [fofo, coelho], quantidade: 4, doador: Yudi Playsteicho/112233 | 4 - pelucia, tags: [fofo,  gato], quantidade: 3, doador: Yudi Playsteicho/112233 | 6 - pelucia, tags: [coelho,  fofo], quantidade: 3, doador: Yudi Playsteicho/112233 | 5 - pelucia, tags: [gato,  fofo], quantidade: 3, doador: Yudi Playsteicho/112233 | 7 - pelucia, tags: [algodao,  macaco], quantidade: 3, doador: Yudi Playsteicho/112233", doacaoController.match("123456", 3));
 
-        assertEquals("1 - pelucia, tags: [fofo,  coelho], quantidade: 4, doador: Yudi Playsteicho/112233 | 4 - pelucia, tags: [fofo,  gato], quantidade: 3, doador: Yudi Playsteicho/112233 | 6 - pelucia, tags: [coelho,  fofo], quantidade: 3, doador: Yudi Playsteicho/112233 | 5 - pelucia, tags: [gato,  fofo], quantidade: 3, doador: Yudi Playsteicho/112233 | 7 - pelucia, tags: [algodao,  macaco], quantidade: 3, doador: Yudi Playsteicho/112233", doacaoController.match("123456", 3));
+       
     }
 
     @Test(expected = IllegalArgumentException.class)
