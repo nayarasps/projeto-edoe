@@ -4,7 +4,9 @@ import entidades.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class DoacaoController {
@@ -33,24 +35,17 @@ public class DoacaoController {
 
         Doacao doacao = new Doacao(doador, receptor, 0, data, itemNecessario.getDescricao());
 
-        int novaQuantidadeItens = Math.abs(itemNecessario.getQuantidade() - itemDoado.getQuantidade());
         boolean maiorQuantidadeItemDoado = itemDoado.getQuantidade() > itemNecessario.getQuantidade();
         boolean maiorQuantidadeItemNecessario = itemDoado.getQuantidade() < itemNecessario.getQuantidade();
 
         if (maiorQuantidadeItemDoado) {
-            doacao.setQuantidadeDoada(itemNecessario.getQuantidade());
-            itemDoado.setQuantidade(novaQuantidadeItens);
-            receptor.removeItembyid(idItemNecessario);
+            atualizaItemDoadoRemoveItemNecessario(doacao, itemNecessario, itemDoado, receptor);
         }
         else if (maiorQuantidadeItemNecessario) {
-            doacao.setQuantidadeDoada(itemDoado.getQuantidade());
-            itemNecessario.setQuantidade(novaQuantidadeItens);
-            doador.removeItembyid(idItemDoado);
+            atualizaItemNecessarioRemoveItemDoado(doacao, itemNecessario, itemDoado, doador);
         }
         else {
-            doacao.setQuantidadeDoada(itemNecessario.getQuantidade());
-            receptor.removeItembyid(idItemNecessario);
-            doador.removeItembyid(idItemDoado);
+            removeItemNecessarioItemDoado(doacao, itemNecessario, itemDoado, doador, receptor);
         }
 
         doacoes.add(doacao);
@@ -66,7 +61,7 @@ public class DoacaoController {
             saida.append(doacao.toString());
             saida.append(" | ");
         }
-        return saida.substring(0, saida.length() - 3);
+        return removeCaracteresDesnecessarios(saida.toString(), 3);
     }
 
     public String match(String idReceptor, int idItemNecessario) {
@@ -82,7 +77,10 @@ public class DoacaoController {
         for (Item itemDoado: itensDoados) {
             int pontuacao = 0;
 
-            if (itemDoado.getDescricao().equals(itemNecessario.getDescricao())) {
+            String descricaoItemDoado = itemDoado.getDescricao();
+            String descricaoItemNecessario = itemNecessario.getDescricao();
+
+            if (descricaoItemDoado.equals(descricaoItemNecessario)) {
                 pontuacao += 20;
 
                 pontuacao += comparaTags(itemDoado, itemNecessario);
@@ -91,53 +89,68 @@ public class DoacaoController {
                 itensComMatch.add(itemDoado);
             }
 
-
         }
-
-        return itensComMatch.toString();
+        return formataSaidaMatches(itensComMatch);
     }
 
     private String formataSaidaMatches(List<Item> itensComMatch) {
+
+        String saida = matchesToString(itensComMatch);
+
+        if (itensComMatch.isEmpty()) {
+            saida = "";
+            return saida;
+        }
+        else {
+            saida = removeCaracteresDesnecessarios(saida, 3);
+        }
+
+        return saida;
+    }
+
+    private String matchesToString(List<Item> itensComMatch) {
+        itensComMatch.sort(Item.comparaPontuacaoMatch);
         StringBuilder saida = new StringBuilder();
 
-        Collections.sort(itensComMatch, Item.comparaPontuacaoMatch);
-        for (int i = 0; i < itensComMatch.size(); i++) {
-            saida.append(itensComMatch.get(i).toString()).append(", doador: ").append(itensComMatch.get(i).getUser().getNome()).append("/").append(itensComMatch.get(i).getUser().getId());
+        for (Item itemComMatch : itensComMatch) {
+            Doador doador = encontraDoadorPorIdItem(itemComMatch.getId());
+            saida.append(itemComMatch.toString())
+                    .append(", doador: ")
+                    .append(doador.getNome())
+                    .append("/")
+                    .append(doador.getId());
             saida.append(" | ");
         }
-        if (saida.toString().equals("")) {
-            return "";
-        }
-        return saida.substring(0, saida.length() - 3);
+        return saida.toString();
     }
 
     private int comparaTags(Item itemDoado, Item itemNecessario) {
         String[] tagsItemDoado = itemDoado.getTags().split(",");
         String[] tagsItemNecessario = itemNecessario.getTags().split(",");
 
+        Map<String, Integer> mapTagsItemDoado = new HashMap<String, Integer>();
+        Map<String, Integer> mapTagsItemNecessario = new HashMap<String, Integer>();
+
+        for (int i = 0; i < tagsItemDoado.length; i++) {
+            mapTagsItemDoado.put(tagsItemDoado[i], i);
+        }
+
+        for (int i = 0; i < tagsItemNecessario.length; i++) {
+            mapTagsItemNecessario.put(tagsItemNecessario[i], i);
+        }
+
+        return mapTagsItemDoado.size() >= mapTagsItemNecessario.size() ? calculaPontos(mapTagsItemDoado, mapTagsItemNecessario) : calculaPontos(mapTagsItemNecessario, mapTagsItemDoado);
+    }
+
+    private int calculaPontos(Map<String, Integer> hashmap1, Map<String, Integer> hashmap2) {
         int pontos = 0;
 
-        for (String tag : tagsItemDoado) {
-            for(String tagItem : tagsItemNecessario) {
-                if (tagsItemNecessario.length <= tagsItemDoado.length) {
-                    for (int j = 0; j < tagsItemDoado.length; j++) {
-                        if (tagItem.contentEquals(tag)) {
-                            pontos += 10;
-                        }
-                        else if (tagItem.contains(tag)) {
-                            pontos += 5;
-                        }
-                    }
-                }else if (tagsItemNecessario.length > tagsItemDoado.length) {
-                    for (int j = 0; j < tagsItemNecessario.length; j++) {
-                        if (tagItem.contentEquals(tag)) {
-                            pontos += 10;
-                        }
-                        else if (tagItem.contains(tag)) {
-                            pontos += 5;
-                        }
-                    }
-                }
+        for (Map.Entry<String, Integer> entry : hashmap1.entrySet()) {
+            if (hashmap2.containsKey(entry.getKey())) {
+                int tag1 = entry.getValue();
+                int tag2 = hashmap2.get(entry.getKey());
+
+                pontos += tag1 == tag2 ? 10 : 5;
             }
         }
 
@@ -168,6 +181,28 @@ public class DoacaoController {
             }
         }
         return receptor;
+    }
+
+    private String removeCaracteresDesnecessarios(String palavra, int numeroCaracters) {
+        return palavra.substring(0, palavra.length() - numeroCaracters);
+    }
+
+    private void atualizaItemDoadoRemoveItemNecessario(Doacao doacao, Item itemNecessario, Item itemDoado, Receptor receptor) {
+        doacao.setQuantidadeDoada(itemNecessario.getQuantidade());
+        itemDoado.setQuantidade(itemDoado.getQuantidade() - itemNecessario.getQuantidade());
+        receptor.removeItembyid(itemNecessario.getId());
+    }
+
+    private void atualizaItemNecessarioRemoveItemDoado(Doacao doacao, Item itemNecessario, Item itemDoado, Doador doador) {
+        doacao.setQuantidadeDoada(itemDoado.getQuantidade());
+        itemNecessario.setQuantidade(itemNecessario.getQuantidade() - itemDoado.getQuantidade());
+        doador.removeItembyid(itemDoado.getId());
+    }
+
+    private void removeItemNecessarioItemDoado(Doacao doacao, Item itemNecessario, Item itemDoado, Doador doador, Receptor receptor) {
+        doacao.setQuantidadeDoada(itemNecessario.getQuantidade());
+        receptor.removeItembyid(itemNecessario.getId());
+        doador.removeItembyid(itemDoado.getId());
     }
 
 }
