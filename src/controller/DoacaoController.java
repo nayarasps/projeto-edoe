@@ -4,7 +4,9 @@ import entidades.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class DoacaoController {
@@ -115,35 +117,35 @@ public class DoacaoController {
         String[] tagsItemDoado = itemDoado.getTags().split(",");
         String[] tagsItemNecessario = itemNecessario.getTags().split(",");
 
+        Map<String, Integer> mapTagsItemDoado = new HashMap<String, Integer>();
+        Map<String, Integer> mapTagsItemNecessario = new HashMap<String, Integer>();
+
+        for (int i = 0; i < tagsItemDoado.length; i++) {
+            mapTagsItemDoado.put(tagsItemDoado[i], i);
+        }
+
+        for (int i = 0; i < tagsItemNecessario.length; i++) {
+            mapTagsItemNecessario.put(tagsItemNecessario[i], i);
+        }
+
+        return mapTagsItemDoado.size() >= mapTagsItemNecessario.size() ? calculaPontos(mapTagsItemDoado, mapTagsItemNecessario) : calculaPontos(mapTagsItemNecessario, mapTagsItemDoado);
+    }
+
+    private int calculaPontos(Map<String, Integer> hashmap1, Map<String, Integer> hashmap2) {
         int pontos = 0;
 
-        for (String tag : tagsItemDoado) {
-            for(String tagItem : tagsItemNecessario) {
-                if (tagsItemNecessario.length <= tagsItemDoado.length) {
-                    for (int j = 0; j < tagsItemDoado.length; j++) {
-                        if (tagItem.contentEquals(tag)) {
-                            pontos += 10;
-                        }
-                        else if (tagItem.contains(tag)) {
-                            pontos += 5;
-                        }
-                    }
-                }else if (tagsItemNecessario.length > tagsItemDoado.length) {
-                    for (int j = 0; j < tagsItemNecessario.length; j++) {
-                        if (tagItem.contentEquals(tag)) {
-                            pontos += 10;
-                        }
-                        else if (tagItem.contains(tag)) {
-                            pontos += 5;
-                        }
-                    }
-                }
+        for (Map.Entry<String, Integer> entry : hashmap1.entrySet()) {
+            if (hashmap2.containsKey(entry.getKey())) {
+                int tag1 = entry.getValue();
+                int tag2 = hashmap2.get(entry.getKey());
+
+                pontos += tag1 == tag2 ? 10 : 5;
             }
         }
 
         return pontos;
     }
-
+    
     private Doador encontraDoadorPorIdItem(int idItem) {
         Doador doador = itemController.encontraDoadorPorIdItem(idItem);
         if (doador == null) {
